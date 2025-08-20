@@ -33,6 +33,9 @@ namespace EyeTrackVRResonite
         private static readonly ModConfigurationKey<float> Beta = new("beta", "Eye Swing Multiplier Y", () => 1.0f);
 
         [AutoRegisterConfigKey]
+        private static readonly ModConfigurationKey<float> DilationScale = new("dilation_scale", "Dilation Scale Divider", () => 100.0f);
+
+        [AutoRegisterConfigKey]
         private static readonly ModConfigurationKey<int> OscPort = new("osc_port", "EyeTrackVR OSC port", () => 9000);
 
         [HarmonyPatch(typeof(InputInterface), MethodType.Constructor)]
@@ -72,7 +75,7 @@ namespace EyeTrackVRResonite
 
             public void RegisterInputs(InputInterface inputInterface)
             {
-                _eyes = new Eyes(inputInterface, "EyeTrackVR Eye Tracking", false);
+                _eyes = new Eyes(inputInterface, "EyeTrackVR Eye Tracking", true);
             }
 
             public void UpdateInputs(float deltaTime)
@@ -88,17 +91,17 @@ namespace EyeTrackVRResonite
                 var fakeWiden = MathX.Remap(MathX.Clamp01(ETVROSC.EyeDataWithAddress["/avatar/parameters/EyesY"]), 0f,
                     1f, 0f, 0.33f);
 
+		var pupilDiameter = MathX.Clamp01((ETVROSC.EyeDataWithAddress["/avatar/parameters/EyesDilation"] / _config.GetValue(DilationScale)));
+
                 var leftEyeDirection = Project2DTo3D(ETVROSC.EyeDataWithAddress["/avatar/parameters/LeftEyeX"],
                     ETVROSC.EyeDataWithAddress["/avatar/parameters/EyesY"]);
-                UpdateEye(leftEyeDirection, float3.Zero, true,
-                    ETVROSC.EyeDataWithAddress["/avatar/parameters/EyesDilation"],
+                UpdateEye(leftEyeDirection, float3.Zero, true, pupilDiameter,
                     ETVROSC.EyeDataWithAddress["/avatar/parameters/LeftEyeLidExpandedSqueeze"],
                     fakeWiden, 0f, 0f, deltaTime, _eyes.LeftEye);
 
                 var rightEyeDirection = Project2DTo3D(ETVROSC.EyeDataWithAddress["/avatar/parameters/RightEyeX"],
                     ETVROSC.EyeDataWithAddress["/avatar/parameters/EyesY"]);
-                UpdateEye(rightEyeDirection, float3.Zero, true,
-                    ETVROSC.EyeDataWithAddress["/avatar/parameters/EyesDilation"],
+                UpdateEye(rightEyeDirection, float3.Zero, true, pupilDiameter,
                     ETVROSC.EyeDataWithAddress["/avatar/parameters/RightEyeLidExpandedSqueeze"],
                     fakeWiden, 0f, 0f, deltaTime, _eyes.RightEye);
 
@@ -106,8 +109,7 @@ namespace EyeTrackVRResonite
                 var combinedOpenness =
                     MathX.Average(ETVROSC.EyeDataWithAddress["/avatar/parameters/LeftEyeLidExpandedSqueeze"],
                         ETVROSC.EyeDataWithAddress["/avatar/parameters/RightEyeLidExpandedSqueeze"]);
-                UpdateEye(combinedDirection, float3.Zero, true,
-                    ETVROSC.EyeDataWithAddress["/avatar/parameters/EyesDilation"], combinedOpenness,
+                UpdateEye(combinedDirection, float3.Zero, true, pupilDiameter, combinedOpenness,
                     fakeWiden, 0f, 0f, deltaTime, _eyes.CombinedEye);
                 _eyes.ComputeCombinedEyeParameters();
 
@@ -117,8 +119,7 @@ namespace EyeTrackVRResonite
             }
 
             private static void UpdateEye(float3 gazeDirection, float3 gazeOrigin, bool status, float pupilSize,
-                float openness,
-                float widen, float squeeze, float frown, float deltaTime, Eye eye)
+                float openness, float widen, float squeeze, float frown, float deltaTime, Eye eye)
             {
                 eye.IsDeviceActive = Engine.Current.InputInterface.VR_Active;
                 eye.IsTracking = status;

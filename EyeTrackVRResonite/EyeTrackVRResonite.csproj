@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <ProjectGuid>{f6ad1524-11dd-4908-8aae-264488b65de6}</ProjectGuid>
         <AssemblyTitle>EyeTrackVRResonite</AssemblyTitle>
@@ -27,16 +27,16 @@
     <ItemGroup>
         <PackageReference Include="Lib.Harmony" Version="2.2.2" />
         <Reference Include="FrooxEngine">
-            <HintPath>$(ResonitePath)Resonite_Data\Managed\FrooxEngine.dll</HintPath>
+            <HintPath>$(ResonitePath)FrooxEngine.dll</HintPath>
         </Reference>
         <Reference Include="Elements.Core">
-            <HintPath>$(ResonitePath)Resonite_Data\Managed\Elements.Core.dll</HintPath>
+            <HintPath>$(ResonitePath)Elements.Core.dll</HintPath>
         </Reference>
         <Reference Include="Elements.Assets">
-            <HintPath>$(ResonitePath)Resonite_Data\Managed\Elements.Assets.dll</HintPath>
+            <HintPath>$(ResonitePath)Elements.Assets.dll</HintPath>
         </Reference>
         <Reference Include="Assembly-CSharp">
-            <HintPath>$(ResonitePath)Resonite_Data\Managed\Assembly-CSharp.dll</HintPath>
+            <HintPath>$(ResonitePath)Renderer\Renderite.Renderer_Data\Managed\Assembly-CSharp.dll</HintPath>
         </Reference>
         <Reference Include="ResoniteModLoader">
             <HintPath>$(ResonitePath)Libraries\ResoniteModLoader.dll</HintPath>

@@ -5,7 +5,7 @@ A [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoade
 ## Usage
 1. Install [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader).
 2. Place [EyeTrackVRResonite.dll](https://github.com/Wolf-Seisenbacher/EyeTrackVRResonite/releases) into your `rml_mods` folder. This folder should be at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_mods` on windows or `$HOME/.steam/steam/steamapps/common/Resonite/rml_mods` on linux for a default installation. You can create it if it's missing, or if you launch the game once with ResoniteModLoader installed it will create the folder for you.
-3. Place [OscCore.dll](https://github.com/Wolf-Seisenbacher/EyeTrackVRResonite/releases) into your 'rml_libs' folder.  This folder should be at `C:\Profram Files (x86)\Steam\steamapps\common\Resonite\rml_libs` on windows, or `$HOME/.steam/steam/steamapps/common/Resonite/rml_libs` on Linux for default installation. You can create it if it's missing, or if you launch the game with ResoniteModLoader installed it will create the folder for you.
+3. Place [OscCore.dll](https://github.com/Wolf-Seisenbacher/EyeTrackVRResonite/releases) into your 'rml_libs' folder.  This folder should be at `C:\Program Files (x86)\Steam\steamapps\common\Resonite\rml_libs` on windows, or `$HOME/.steam/steam/steamapps/common/Resonite/rml_libs` on Linux for default installation. You can create it if it's missing, or if you launch the game with ResoniteModLoader installed it will create the folder for you.
 4. Start EyeTrackVR software before running the game, otherwise it won't reconnect in-game. If using newer app, select VRCFT V1 in Settings tab.
 5. Check if it's working by looking at eyes in the mirror.
 

@@ -7,9 +7,9 @@ namespace EyeTrackVRResonite
 {
     public class EyeTrackVR : ResoniteMod
     {
-        internal const string VERSION_CONSTANT = "3.0.0";
+        internal const string VERSION_CONSTANT = "3.1.0";
         public override string Name => "EyeTrackVRResonite";
-        public override string Author => "qualia + Wolf-Seisenbacher + PLYSHKA + dfgHiatus + Noble";
+        public override string Author => "qualia + Wolf-Seisenbacher + PLYSHKA + dfgHiatus + Noble + Zenuru";
         public override string Version => VERSION_CONSTANT;
         public override string Link => "https://github.com/WolfSeisenbacher/EyeTrackVRResonite";
 

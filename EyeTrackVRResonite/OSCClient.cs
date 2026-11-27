@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using EyeTrackVR;
-using OscCore;
-using OscCore.LowLevel;
+using Rug.Osc;
 
 namespace EyeTrackVRResonite
 {
@@ -13,10 +11,9 @@ namespace EyeTrackVRResonite
 
     public class ETVROSC
     {
-        private static bool _oscSocketState;
         public static readonly Dictionary<string, float> EyeDataWithAddress = new();
 
-        private static UdpClient? _receiver;
+        private static OscReceiver? _receiver;
         private static Task? _task;
 
         private const int DefaultPort = 9000;
@@ -30,42 +27,39 @@ namespace EyeTrackVRResonite
                 return;
             }
 
-            IPAddress.TryParse("127.0.0.1", out var candidate);
+            var activePort = port ?? DefaultPort;
 
-            _receiver = port.HasValue
-                ? new UdpClient(new IPEndPoint(candidate, port.Value))
-                : new UdpClient(new IPEndPoint(candidate, DefaultPort));
+            _receiver = new OscReceiver(IPAddress.Loopback, activePort);
+            _receiver.Connect();
 
             foreach (var shape in ETVRExpressions.EyeDataWithAddress)
                 EyeDataWithAddress.Add(shape, 0f);
-
-            _oscSocketState = true;
+            
             _task = Task.Run(ListenLoop);
         }
 
-        private static async void ListenLoop()
+        private static void ListenLoop()
         {
-            EyeTrackVR.Msg($"EyeTrackVR loop now listening on port {((IPEndPoint?)_receiver?.Client.LocalEndPoint)?.Port}");
-            while (_oscSocketState)
+            EyeTrackVR.Msg($"EyeTrackVR loop now listening on port {_receiver?.Port}");
+            while (_receiver.State == OscSocketState.Connected)
             {
-                var result = await _receiver.ReceiveAsync();
-                var bytes = new System.ArraySegment<byte>(result.Buffer, 0, result.Buffer.Length);
-                if (IsBundle(bytes))
-                {
-                    var bundle = new OscBundleRaw(bytes);
-                    foreach (var message in bundle)
-                        ProcessOscMessage(message);
-                }
-                else
-                {
-                    var message = new OscMessageRaw(bytes);
-                    ProcessOscMessage(message);
-                }
+                var packet = _receiver.Receive();
+                if (packet != null)
+                    ProcessOscMessage(packet);
             }
         }
 
-        private static void ProcessOscMessage(OscMessageRaw message)
+        private static void ProcessOscMessage(OscPacket packet)
         {
+            if (packet is OscBundle bundle)
+            {
+                foreach (var subpacket in bundle)
+                    ProcessOscMessage(subpacket);
+            }
+
+            if (packet is not OscMessage message)
+                return;
+
             if (!EyeDataWithAddress.ContainsKey(message.Address))
             {
                 EyeTrackVR.Warn($"Unknown OSC Address: {message.Address}");
@@ -74,22 +68,24 @@ namespace EyeTrackVRResonite
 
             var arg = message[0];
 
-            switch (arg.Type)
+            switch (arg)
             {
-                case (OscToken.Float):
-                    EyeDataWithAddress[message.Address] = message.ReadFloat(ref arg);
-
-                    if (message.Address == "/avatar/parameters/v2/EyeX" || message.Address == "/avatar/parameters/v2/EyeY")
-                        _isSingleEye = true;
-                    else if (message.Address == "/avatar/parameters/v2/EyeLeftX" || message.Address == "/avatar/parameters/v2/EyeRightX")
-                        _isSingleEye = false;
+                case float floatValue:
+                    EyeDataWithAddress[message.Address] = floatValue;
+                    _isSingleEye = message.Address switch
+                    {
+                        "/avatar/parameters/v2/EyeX" or "/avatar/parameters/v2/EyeY" => true,
+                        "/avatar/parameters/v2/EyeLeftX" or "/avatar/parameters/v2/EyeRightX" => false,
+                        _ => _isSingleEye
+                    };
 
                     break;
-                case (OscToken.Int):
-                    EyeDataWithAddress[message.Address] = message.ReadInt(ref arg);
+                
+                case int intValue:
+                    EyeDataWithAddress[message.Address] = intValue;
                     break;
                 default:
-                    EyeTrackVR.Warn($"Unknown OSC type: {arg.Type}");
+                    EyeTrackVR.Warn($"Unknown OSC type: {arg.GetType()}");
                     break;
             }
         }
@@ -116,7 +112,6 @@ namespace EyeTrackVRResonite
         public static void Teardown()
         {
             EyeTrackVR.Msg("EyeTrackVR teardown called");
-            _oscSocketState = false;
             _receiver.Close();
             _task.Wait();
             EyeTrackVR.Msg("EyeTrackVR teardown completed");

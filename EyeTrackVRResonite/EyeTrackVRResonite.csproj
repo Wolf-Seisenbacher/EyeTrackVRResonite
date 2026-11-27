@@ -6,15 +6,16 @@
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework>net11.0</TargetFramework>
         <FileAlignment>512</FileAlignment>
-        <LangVersion>12.0</LangVersion>
+        <LangVersion>14.0</LangVersion>
         <Nullable>enable</Nullable>
         <Deterministic>true</Deterministic>
         <CopyLocal>false</CopyLocal>
         <CopyToMods Condition="'$(CopyToMods)'==''">true</CopyToMods>
         <DebugSymbols Condition="'$(Configuration)'=='Release'">false</DebugSymbols>
         <DebugType Condition="'$(Configuration)'=='Release'">None</DebugType>
+        <Version>3.1.0</Version>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(ResonitePath)'==''">
@@ -35,9 +36,9 @@
         <Reference Include="ResoniteModLoader">
             <HintPath>$(ResonitePath)Libraries\ResoniteModLoader.dll</HintPath>
             <HintPath Condition="Exists('$(ResonitePath)ResoniteModLoader.dll')">$(ResonitePath)ResoniteModLoader.dll</HintPath>
-            <HintPath Condition="Exists('$(MSBuildProjectDirectory)\..\ResoniteModLoader.dll')">$(MSBuildProjectDirectory)\..\ResoniteModLoader.dll</HintPath>
+            <HintPath Condition="Exists('$(MSBuildProjectDirectory)\ResoniteModLoader.dll')">$(MSBuildProjectDirectory)\ResoniteModLoader.dll</HintPath>
         </Reference>
-        <PackageReference Include="OscCore" Version="1.0.5" />
+        <PackageReference Include="Rug.Osc" Version="1.2.5" />
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(CopyToMods)'=='true'">
